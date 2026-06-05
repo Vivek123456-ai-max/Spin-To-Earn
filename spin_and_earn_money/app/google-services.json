@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "421098830293",
+    "project_id": "earning-apps-9c2d9",
+    "storage_bucket": "earning-apps-9c2d9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:421098830293:android:003c6224234929bcf5655c",
+        "android_client_info": {
+          "package_name": "com.example.spin_and_earn_money"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "421098830293-54rpaer457jr18qdarqne8u07pkldqhm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.spin_and_earn_money",
+            "certificate_hash": "e6d9c7818e5ae103211bcbafcab5815f50a3e58e"
+          }
+        },
+        {
+          "client_id": "421098830293-qar8dnle3q25r1v32h7eku2chpuvo77s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDqrCPNXNivGEJSsisDsXebz0vI03t15M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "421098830293-qar8dnle3q25r1v32h7eku2chpuvo77s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
