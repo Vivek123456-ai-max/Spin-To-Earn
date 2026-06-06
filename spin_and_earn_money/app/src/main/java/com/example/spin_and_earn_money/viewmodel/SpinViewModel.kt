@@ -32,9 +32,9 @@ class SpinViewModel : ViewModel() {
     val targetAngle: StateFlow<Float> = _targetAngle
 
     fun spin(currentUser: UserModel, onUserUpdate: (UserModel) -> Unit) {
-        // Check max 5 spins per day
+        // Check max 10 spins per day
         val spinsToday = currentUser.spinsToday
-        if (spinsToday >= 5) {
+        if (spinsToday >= 10) {
             _spinState.value = SpinState.MaxSpinsReached
             return
         }

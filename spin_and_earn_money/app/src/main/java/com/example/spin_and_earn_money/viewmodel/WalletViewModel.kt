@@ -46,9 +46,9 @@ class WalletViewModel : ViewModel() {
 
     /**
      * Submit a withdrawal request.
-     * Minimum amount: 100 rupees (= 100,000 points at 1000pts = ₹1).
-     * Actually user enters rupee amount, minimum ₹100 = 100,000 points.
-     * 1000 points = ₹1, so ₹100 = 100,000 points.
+     * Minimum amount: 10 rupees (= 10,000 points at 1000pts = ₹1).
+     * Actually user enters rupee amount, minimum ₹10 = 10,000 points.
+     * 1000 points = ₹1, so ₹10 = 10,000 points.
      */
     fun submitWithdrawal(
         currentUser: UserModel,
@@ -57,8 +57,8 @@ class WalletViewModel : ViewModel() {
         onUserUpdate: (UserModel) -> Unit
     ) {
         val pointsNeeded = amountInRupees * 1000L
-        if (amountInRupees < 100) {
-            _walletState.value = WalletState.Error("Minimum withdrawal is ₹100")
+        if (amountInRupees < 10) {
+            _walletState.value = WalletState.Error("Minimum withdrawal is ₹10")
             return
         }
         if (currentUser.points < pointsNeeded) {

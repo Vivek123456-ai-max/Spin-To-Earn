@@ -156,7 +156,7 @@ fun SpinScreen(
             ) {
                 Column {
                     Text("Spin & Win", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = TextPrimary)
-                    Text("Up to 5 spins per day", fontSize = 12.sp, color = TextSecondary)
+                    Text("Up to 10 spins per day", fontSize = 12.sp, color = TextSecondary)
                 }
                 // Trophy badge
                 Box(
@@ -201,7 +201,7 @@ fun SpinScreen(
                 SpinStatCard(
                     modifier = Modifier.weight(1f),
                     label    = "Spins Left",
-                    value    = "${5 - currentUser.spinsToday}",
+                    value    = "${10 - currentUser.spinsToday}",
                     tint     = Gold,
                     emoji    = "🎡"
                 )
@@ -211,7 +211,7 @@ fun SpinScreen(
 
             // ── Spin counter stars ──
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                repeat(5) { idx ->
+                repeat(10) { idx ->
                     val used = idx < currentUser.spinsToday
                     Icon(
                         imageVector = Icons.Default.Star,
@@ -222,7 +222,7 @@ fun SpinScreen(
                 }
             }
             Text(
-                "${currentUser.spinsToday}/5 spins used",
+                "${currentUser.spinsToday}/10 spins used",
                 fontSize = 11.sp,
                 color    = TextSecondary,
                 modifier = Modifier.padding(top = 4.dp)
@@ -323,7 +323,7 @@ fun SpinScreen(
                 contentAlignment = Alignment.Center
             ) {
                 // Glow
-                if (!isSpinning && currentUser.spinsToday < 5) {
+                if (!isSpinning && currentUser.spinsToday < 10) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -338,10 +338,10 @@ fun SpinScreen(
                 }
                 Button(
                     onClick = {
-                        if (!isSpinning && currentUser.spinsToday < 5) {
+                        if (!isSpinning && currentUser.spinsToday < 10) {
                             scope.launch { rotation.snapTo(rotation.value % 360f) }
                             viewModel.spin(currentUser, onUserUpdate)
-                        } else if (currentUser.spinsToday >= 5) {
+                        } else if (currentUser.spinsToday >= 10) {
                             showMaxSpinsDialog = true
                         }
                     },
@@ -358,7 +358,7 @@ fun SpinScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .background(
-                                if (isSpinning || currentUser.spinsToday >= 5)
+                                if (isSpinning || currentUser.spinsToday >= 10)
                                     Brush.horizontalGradient(listOf(TextMuted.copy(.3f), TextMuted.copy(.2f)))
                                 else
                                     Brush.horizontalGradient(listOf(Indigo, Violet, Rose)),
@@ -377,7 +377,7 @@ fun SpinScreen(
                                 Icon(Icons.Default.Bolt, null, tint = Color.White, modifier = Modifier.size(22.dp))
                                 Spacer(Modifier.width(8.dp))
                                 Text(
-                                    if (currentUser.spinsToday >= 5) "No Spins Left Today" else "SPIN NOW",
+                                    if (currentUser.spinsToday >= 10) "No Spins Left Today" else "SPIN NOW",
                                     fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = Color.White
                                 )
                             }
@@ -487,7 +487,7 @@ fun SpinScreen(
             },
             text = {
                 Text(
-                    "You've used all 5 spins for today.\nCome back tomorrow for more rewards!",
+                    "You've used all 10 spins for today.\nCome back tomorrow for more rewards!",
                     color = TextSecondary, textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(), lineHeight = 22.sp
                 )

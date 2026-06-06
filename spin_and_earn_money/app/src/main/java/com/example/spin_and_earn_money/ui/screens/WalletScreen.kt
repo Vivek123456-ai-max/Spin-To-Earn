@@ -294,7 +294,7 @@ fun WalletScreen(
 
             Spacer(Modifier.height(8.dp))
             Text(
-                "Minimum withdrawal: ₹100 (1,00,000 points)",
+                "Minimum withdrawal: ₹10 (10,000 points)",
                 fontSize = 11.sp, color = TextSecondary, textAlign = TextAlign.Center
             )
 
@@ -324,7 +324,7 @@ fun WalletScreen(
                         "Enter UPI ID and withdrawal amount",
                         "Admin reviews and approves request",
                         "Money sent within 24–48 hours",
-                        "Minimum withdrawal: ₹100"
+                        "Minimum withdrawal: ₹10"
                     ).forEachIndexed { i, step ->
                         Row(modifier = Modifier.padding(vertical = 5.dp), verticalAlignment = Alignment.Top) {
                             Box(
@@ -465,7 +465,7 @@ fun WalletScreen(
                         value         = amountText,
                         onValueChange = { amountText = it.filter { c -> c.isDigit() } },
                         label         = "Amount (₹)",
-                        placeholder   = "Minimum ₹100",
+                        placeholder   = "Minimum ₹10",
                         keyboardType  = KeyboardType.Number
                     )
                     if (walletState is WalletState.Error) {
