@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.spin_and_earn_money.ads.AdManager
+import com.example.spin_and_earn_money.ads.AppOpenAdManager
 import com.example.spin_and_earn_money.data.UserModel
 import com.example.spin_and_earn_money.ui.screens.HomeScreen
 import com.example.spin_and_earn_money.ui.screens.LoginScreen
@@ -20,7 +21,7 @@ import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
 
 private const val ROUTE_LOGIN = "login"
-private const val ROUTE_HOME = "home"
+private const val ROUTE_HOME  = "home"
 
 class MainActivity : ComponentActivity() {
 
@@ -31,18 +32,29 @@ class MainActivity : ComponentActivity() {
         // Initialize Firebase
         FirebaseApp.initializeApp(this)
 
-        // Initialize AdMob
-        MobileAds.initialize(this)
+        // Register App Open lifecycle observer BEFORE initialize() so we
+        // don't miss the very first onActivityStarted
+        application.registerActivityLifecycleCallbacks(AppOpenAdManager)
 
-        // Preload ads
-        AdManager.loadRewardedAd(this)
-        AdManager.loadInterstitialAd(this)
+        // FIX: Load ads only AFTER MobileAds.initialize() completes.
+        // Calling load before init is done is the #1 cause of ads not showing.
+        MobileAds.initialize(this) {
+            AppOpenAdManager.loadAd(this)
+            AdManager.loadRewardedAd(this)
+            AdManager.loadInterstitialAd(this)
+            AdManager.loadRewardedInterstitialAd(this)
+        }
 
         setContent {
             Spin_and_earn_moneyTheme(darkTheme = true) {
                 AppNavigation()
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        application.unregisterActivityLifecycleCallbacks(AppOpenAdManager)
     }
 }
 
@@ -90,8 +102,8 @@ fun AppNavigation() {
 
             HomeScreen(
                 authViewModel = authViewModel,
-                initialUser = user,
-                onLogout = {
+                initialUser   = user,
+                onLogout      = {
                     navController.navigate(ROUTE_LOGIN) {
                         popUpTo(ROUTE_HOME) { inclusive = true }
                     }

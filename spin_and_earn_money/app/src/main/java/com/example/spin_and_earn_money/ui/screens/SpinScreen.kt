@@ -69,9 +69,12 @@ fun SpinScreen(
     val targetAngle by viewModel.targetAngle.collectAsState()
     val scope     = rememberCoroutineScope()
 
-    var showResultDialog   by remember { mutableStateOf(false) }
-    var resultPoints       by remember { mutableLongStateOf(0L) }
-    var showMaxSpinsDialog by remember { mutableStateOf(false) }
+    var showResultDialog          by remember { mutableStateOf(false) }
+    var resultPoints              by remember { mutableLongStateOf(0L) }
+    var showMaxSpinsDialog        by remember { mutableStateOf(false) }
+    var bonusSpinGranted          by remember { mutableStateOf(false) }
+    var showBonusSpinEarnedDialog by remember { mutableStateOf(false) }
+    var rewardedInterstitialReady by remember { mutableStateOf(AdManager.isRewardedInterstitialReady()) }
 
     val rotation = remember { Animatable(0f) }
 
@@ -110,7 +113,18 @@ fun SpinScreen(
         }
     }
 
-    LaunchedEffect(Unit) { AdManager.loadRewardedAd(context) }
+    LaunchedEffect(Unit) {
+        AdManager.loadRewardedAd(context)
+        AdManager.loadRewardedInterstitialAd(context)
+    }
+
+    // Poll readiness so the bonus button appears as soon as the ad is cached
+    LaunchedEffect(Unit) {
+        while (true) {
+            rewardedInterstitialReady = AdManager.isRewardedInterstitialReady()
+            kotlinx.coroutines.delay(1000)
+        }
+    }
 
     val isSpinning = spinState is SpinState.Spinning || spinState is SpinState.ShowAd
 
@@ -386,7 +400,81 @@ fun SpinScreen(
                 }
             }
 
-            Spacer(Modifier.height(28.dp))
+            Spacer(Modifier.height(20.dp))
+
+            // ── Bonus Spin via Rewarded Interstitial ──
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                val btnEnabled = !isSpinning && rewardedInterstitialReady && !bonusSpinGranted
+                val btnLabel = when {
+                    bonusSpinGranted        -> "Bonus Spin Used ✓"
+                    !rewardedInterstitialReady -> "Loading Ad..."
+                    else                    -> "🎬  Watch Ad for +1 Spin"
+                }
+                val btnGradient = if (btnEnabled)
+                    Brush.horizontalGradient(listOf(Color(0xFF0F766E), Color(0xFF059669), Color(0xFF10B981)))
+                else
+                    Brush.horizontalGradient(listOf(TextMuted.copy(.25f), TextMuted.copy(.15f)))
+
+                // Glow behind button when ready
+                if (btnEnabled) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp)
+                            .blur(14.dp)
+                            .background(
+                                Brush.horizontalGradient(listOf(Emerald.copy(.6f), Emerald.copy(.3f))),
+                                RoundedCornerShape(18.dp)
+                            )
+                    )
+                }
+                Button(
+                    onClick = {
+                        if (btnEnabled) {
+                            AdManager.showRewardedInterstitialAd(
+                                activity   = activity,
+                                onRewarded = {
+                                    bonusSpinGranted = true
+                                    showBonusSpinEarnedDialog = true
+                                    // Grant +1 spin by decrementing spinsToday
+                                    val updated = currentUser.copy(
+                                        spinsToday = (currentUser.spinsToday - 1).coerceAtLeast(0)
+                                    )
+                                    onUserUpdate(updated)
+                                },
+                                onDismissed = {
+                                    rewardedInterstitialReady = AdManager.isRewardedInterstitialReady()
+                                }
+                            )
+                        }
+                    },
+                    enabled        = btnEnabled,
+                    modifier       = Modifier.fillMaxWidth().height(52.dp),
+                    shape          = RoundedCornerShape(18.dp),
+                    colors         = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                    contentPadding = PaddingValues(0.dp),
+                    elevation      = ButtonDefaults.buttonElevation(0.dp)
+                ) {
+                    Box(
+                        modifier         = Modifier.fillMaxSize().background(btnGradient, RoundedCornerShape(18.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text       = btnLabel,
+                            fontSize   = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color      = if (btnEnabled) Color.White else TextMuted
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
 
             // ── Rewards legend ──
             Text("Possible Rewards", fontSize = 12.sp, color = TextSecondary, fontWeight = FontWeight.SemiBold)
@@ -468,6 +556,37 @@ fun SpinScreen(
                         contentAlignment = Alignment.Center
                     ) { Text("Claim Reward 🎊", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 15.sp) }
                 }
+            }
+        )
+    }
+
+    // ── Bonus Spin Earned Dialog ──
+    if (showBonusSpinEarnedDialog) {
+        AlertDialog(
+            onDismissRequest = { showBonusSpinEarnedDialog = false },
+            containerColor   = BgCard,
+            shape            = RoundedCornerShape(28.dp),
+            title = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                    Text("🎬", fontSize = 40.sp)
+                    Spacer(Modifier.height(8.dp))
+                    Text("+1 Bonus Spin!", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = Emerald)
+                }
+            },
+            text = {
+                Text(
+                    "You earned 1 extra spin by watching an ad. Enjoy!",
+                    color = TextSecondary, textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(), lineHeight = 22.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick  = { showBonusSpinEarnedDialog = false },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape    = RoundedCornerShape(16.dp),
+                    colors   = ButtonDefaults.buttonColors(containerColor = Emerald)
+                ) { Text("Let's Spin! 🎰", color = Color.White, fontWeight = FontWeight.Bold) }
             }
         )
     }
