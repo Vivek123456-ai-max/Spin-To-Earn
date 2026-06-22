@@ -32,13 +32,14 @@ class MainActivity : ComponentActivity() {
         // Initialize Firebase
         FirebaseApp.initializeApp(this)
 
-        // Register App Open lifecycle observer BEFORE initialize() so we
-        // don't miss the very first onActivityStarted
-        application.registerActivityLifecycleCallbacks(AppOpenAdManager)
-
-        // FIX: Load ads only AFTER MobileAds.initialize() completes.
-        // Calling load before init is done is the #1 cause of ads not showing.
+        // Initialize Mobile Ads SDK and load ads after initialization completes
         MobileAds.initialize(this) {
+            AppOpenAdManager.setInitialized()
+            AdManager.setInitialized()
+
+            // Register App Open lifecycle observer AFTER initialization to avoid race conditions
+            application.registerActivityLifecycleCallbacks(AppOpenAdManager)
+
             AppOpenAdManager.loadAd(this)
             AdManager.loadRewardedAd(this)
             AdManager.loadInterstitialAd(this)

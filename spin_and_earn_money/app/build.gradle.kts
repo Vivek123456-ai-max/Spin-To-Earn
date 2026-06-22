@@ -25,6 +25,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            manifestPlaceholders["adMobAppId"] = "ca-app-pub-7620021466537291~4748886064"
+        }
+        debug {
+            manifestPlaceholders["adMobAppId"] = "ca-app-pub-3940256099942544~3347511713"
         }
     }
     compileOptions {
